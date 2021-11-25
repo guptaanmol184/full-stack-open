@@ -1,6 +1,10 @@
+import CountryListItem from './CountryListItem'
 import Country from './Country'
 
-const FilteredCountries = ({ filter = '', countryList = [] }) => {
+const FilteredCountries = ({
+  filter = '',
+  countryList = []
+}) => {
 
   const countriesToDispaly = countryList.filter(country => {
     return (country.name.common.toLowerCase()
@@ -9,7 +13,7 @@ const FilteredCountries = ({ filter = '', countryList = [] }) => {
 
   if (countriesToDispaly.length === 0) {
     return (
-      <h2>No matching countries found.</h2>
+      <p>No matching countries found.</p>
     )
   }
   else if (countriesToDispaly.length === 1) {
@@ -20,9 +24,9 @@ const FilteredCountries = ({ filter = '', countryList = [] }) => {
   } else if (countriesToDispaly.length <= 10) {
     return (
       countriesToDispaly.map(country =>
-        <p key={country.name.common}>
-          {country.name.common}
-        </p>
+        <CountryListItem
+          key={country.name.common}
+          country={country} />
       )
     )
   } else {

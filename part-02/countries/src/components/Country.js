@@ -18,11 +18,15 @@ const Country = ({ country }) => {
                 }
             </ul>
             <br />
-            <img
-                width='100'
-                height='100'
-                alt={country.flag}
-                src={country.flags.png} />
+            <div style={{ height: '100px' }}>
+                <img
+                    style={{
+                        maxHeight: '100%',
+                        maxWidth: '100%'
+                    }}
+                    alt={country.flag}
+                    src={country.flags.png} />
+            </div>
         </>
     )
 }

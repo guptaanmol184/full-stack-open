@@ -24,7 +24,8 @@ function App() {
       />
       <FilteredCountries
         filter={countryFilter}
-        countryList={countryList} />
+        countryList={countryList}
+      />
     </>
   );
 }
