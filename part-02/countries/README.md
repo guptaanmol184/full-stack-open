@@ -1,3 +1,7 @@
+# Getting Started
+
+Copy the `.env` to `.env.local` in the root of the project and define your [WeatherStack](https://weatherstack.com/) API key before running the project.
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
