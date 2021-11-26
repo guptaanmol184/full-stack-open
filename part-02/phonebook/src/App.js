@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
 import Filter from './components/Filter'
+import personService from './services/persons'
 import PersonForm from './components/PersonForm'
 import { Persons } from './components/Persons'
 
@@ -11,37 +11,73 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('')
   const [nameFilter, setNameFilter] = useState('')
 
+  // Initialize persons from backend
   useEffect(() => {
-    axios.get('http://localhost:3001/persons')
-      .then(response => {
-        setPersons(response.data)
+    personService
+      .getAllPersons()
+      .then(initialPersons => {
+        setPersons(initialPersons)
       })
   }, [])
 
+  // Person Filtering
   const personsToDisplay =
     persons.filter(person =>
       person.name
         .toLowerCase()
         .includes(nameFilter))
 
-
+  // Create (or) Update new Person
   const addName = (e) => {
     e.preventDefault()
 
     const newPerson = {
-      id: persons.length + 1,
       name: newName,
       number: newNumber
     }
 
-    if (persons.filter(person => person.name === newName).length === 0) {
-      setPersons(persons.concat(newPerson))
+    const existingPerson = persons.find(person => person.name === newName);
+
+    if (existingPerson === undefined) {
+      personService.createPerson(newPerson)
+        .then(createdPerson => setPersons(persons.concat(createdPerson)))
     } else {
-      alert(`${newName} is already added to phonebook`)
+      const updateConfirmation =
+        window.confirm(`${newName} is already added to phonebook, replace the old number with a new one ?`)
+      if (updateConfirmation) {
+        personService.updatePerson(existingPerson.id, newPerson)
+          .then(updatedPerson =>
+            setPersons(persons.map(person => {
+              return person.id === existingPerson.id
+                ? updatedPerson
+                : person
+            })))
+          .catch(error => {
+            console.log(`Server returned error: ${error}`);
+            alert(`Server was unable to update ${existingPerson.name}. Please refresh to fetch latest information from the server.`)
+          })
+      }
     }
 
     setNewName('')
     setNewNumber('')
+  }
+
+  // Delete Person
+  const deletePerson = (personToDelete) => {
+    const confirmation = window.confirm(`Delete ${personToDelete.name} ?`)
+
+    if (confirmation) {
+      personService.deletePerson(personToDelete.id)
+        .then(() => {
+          setPersons(persons.filter(person => person.id !== personToDelete.id))
+        })
+        .catch(error => {
+          console.log(`Server returned error: ${error}`);
+          alert(`The person ${personToDelete.name} was already deleted from server.`)
+          setPersons(persons.filter(p => p.id !== personToDelete.id))
+        })
+    }
   }
 
   return (
@@ -57,7 +93,7 @@ const App = () => {
         handleSubmit={addName}
       />
       <h2>Numbers</h2>
-      <Persons persons={personsToDisplay} />
+      <Persons persons={personsToDisplay} onDeletePerson={deletePerson} />
     </div>
   )
 }

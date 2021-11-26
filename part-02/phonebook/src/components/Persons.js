@@ -1,7 +1,14 @@
-export const Persons = ({ persons }) => {
+import React from "react";
+
+export const Persons = ({ persons, onDeletePerson }) => {
   return (
     persons.map(person => (
-      <p key={person.id}>{person.name} {person.number}</p>
+      <React.Fragment key={person.id}>
+        <p>
+          {person.name} {person.number} &nbsp;
+          <button onClick={() => onDeletePerson(person)} >delete</button>
+        </p>
+      </React.Fragment>
     ))
   );
 };
