@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Filter from './components/Filter'
+import Notification from './components/Notification'
 import personService from './services/persons'
 import PersonForm from './components/PersonForm'
 import { Persons } from './components/Persons'
@@ -10,6 +11,17 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [nameFilter, setNameFilter] = useState('')
+  const [notification, setNotification] = useState({
+    message: null,
+    type: null
+  })
+
+  const sendNotification = (message, type) => {
+    setNotification({ message, type })
+    setTimeout(() => {
+      setNotification({ message: null, type: null })
+    }, 3000);
+  }
 
   // Initialize persons from backend
   useEffect(() => {
@@ -40,21 +52,28 @@ const App = () => {
 
     if (existingPerson === undefined) {
       personService.createPerson(newPerson)
-        .then(createdPerson => setPersons(persons.concat(createdPerson)))
+        .then(createdPerson => {
+          setPersons(persons.concat(createdPerson))
+          sendNotification(`Added ${createdPerson.name}`, 'info')
+        })
     } else {
       const updateConfirmation =
         window.confirm(`${newName} is already added to phonebook, replace the old number with a new one ?`)
       if (updateConfirmation) {
         personService.updatePerson(existingPerson.id, newPerson)
-          .then(updatedPerson =>
+          .then(updatedPerson => {
             setPersons(persons.map(person => {
               return person.id === existingPerson.id
                 ? updatedPerson
                 : person
-            })))
+            }))
+            sendNotification(`Updated ${existingPerson.name}`, 'info')
+          })
           .catch(error => {
             console.log(`Server returned error: ${error}`);
-            alert(`Server was unable to update ${existingPerson.name}. Please refresh to fetch latest information from the server.`)
+            //alert(`Server was unable to update ${existingPerson.name}. Please refresh to fetch latest information from the server.`)
+            sendNotification(`Server failed to update information for ${existingPerson.name}, please refresh to proceed.`,
+              'error')
           })
       }
     }
@@ -74,7 +93,9 @@ const App = () => {
         })
         .catch(error => {
           console.log(`Server returned error: ${error}`);
-          alert(`The person ${personToDelete.name} was already deleted from server.`)
+          //alert(`The person ${personToDelete.name} was already deleted from server.`)
+          sendNotification(`Information for ${personToDelete.name} has been removed from the server.`,
+            'error')
           setPersons(persons.filter(p => p.id !== personToDelete.id))
         })
     }
@@ -83,6 +104,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification
+        notification={notification} />
       <Filter nameFilter={nameFilter} setNameFilter={setNameFilter} />
       <h2>Add a new</h2>
       <PersonForm
