@@ -1,0 +1,25 @@
+# Perons API rest endpoints
+# All persons
+GET http://localhost:3001/api/persons
+
+###
+# Person API info page
+GET http://localhost:3001/api/persons/info
+
+###
+# Person by id
+GET http://localhost:3001/api/persons/1
+
+###
+# Delete person by id
+DELETE http://localhost:3001/api/persons/1
+
+###
+# Create new person
+POST http://localhost:3001/api/persons
+content-type: application/json
+
+{
+    "name": "Matti Luukkainen",
+    "number": "98-31-232021"
+}
