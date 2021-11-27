@@ -20,8 +20,8 @@ POST http://localhost:3001/api/persons
 content-type: application/json
 
 {
-    "name": "Matti Luukkainen",
-    "number": "98-31-232021"
+    "name": "Anmol Gupta",
+    "number": "12-31-232021"
 }
 
 ###

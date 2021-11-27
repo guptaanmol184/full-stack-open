@@ -75,22 +75,6 @@ app.post(`${BASE_URL}`, (request, response, next) => {
 
   let newPerson = request.body
 
-  if (!newPerson.name) {
-    return response
-      .status(400)
-      .json({
-        error: 'name missing'
-      })
-  }
-
-  if (!newPerson.number) {
-    return response
-      .status(400)
-      .json({
-        error: 'number missing'
-      })
-  }
-
   const person = new Person({
     number: newPerson.number,
     name: newPerson.name
@@ -127,7 +111,11 @@ app.put(`${BASE_URL}/:id`, (request, response, next) => {
     number: body.number,
   }
 
-  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+  Person.findByIdAndUpdate(request.params.id, person,
+    { 
+      new: true,
+      runValidators: true 
+    })
     .then(updatedPerson => {
       response.json(updatedPerson)
     })
@@ -147,6 +135,8 @@ const errorHandler = (error, request, response, next) => {
 
   if(error.name === 'CastError') {
     return response.status(400).send({error: 'malformatted id'})
+  } else if(error.name === 'ValidationError') {
+    return response.status(400).send({error: error.message})
   }
 
   next(error)

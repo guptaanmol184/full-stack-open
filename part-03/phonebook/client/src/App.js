@@ -30,6 +30,10 @@ const App = () => {
       .then(initialPersons => {
         setPersons(initialPersons)
       })
+      .catch(error => {
+        console.log('Populating persons failed: ', error)
+        sendNotification(`Failed to retrieve people from server: ${error.response.data.error}`, 'error')
+      })
   }, [])
 
   // Person Filtering
@@ -56,6 +60,11 @@ const App = () => {
           setPersons(persons.concat(createdPerson))
           sendNotification(`Added ${createdPerson.name}`, 'info')
         })
+        .catch(error => {
+            console.log(`Server returned error: ${error}`);
+            console.log({error})
+            sendNotification(error.response.data.error, 'error')
+        })
     } else {
       const updateConfirmation =
         window.confirm(`${newName} is already added to phonebook, replace the old number with a new one ?`)
@@ -72,7 +81,7 @@ const App = () => {
           .catch(error => {
             console.log(`Server returned error: ${error}`);
             //alert(`Server was unable to update ${existingPerson.name}. Please refresh to fetch latest information from the server.`)
-            sendNotification(`Server failed to update information for ${existingPerson.name}, please refresh to proceed.`,
+            sendNotification(`Server failed to update information for ${existingPerson.name}. Error: ${error.response.data.error}. Please refresh to proceed.`,
               'error')
           })
       }
