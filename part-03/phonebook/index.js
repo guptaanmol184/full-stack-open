@@ -1,6 +1,11 @@
+// import dotenv defined environment variables
+require('dotenv').config()
+
 const express = require('express')
 const cors = require('cors')
 const morgan = require('morgan')
+const Person = require('./models/person')
+
 const app = express()
 app.use(express.static('build'))
 app.use(cors())
@@ -18,29 +23,6 @@ app.use(
 
 const BASE_URL = '/api/persons'
 
-let persons = [
-  {
-    "id": 1,
-    "name": "Arto Hellas",
-    "number": "040-123456"
-  },
-  {
-    "id": 2,
-    "name": "Ada Lovelace",
-    "number": "39-44-5323523"
-  },
-  {
-    "id": 3,
-    "name": "Dan Abramov",
-    "number": "12-43-234345"
-  },
-  {
-    "id": 4,
-    "name": "Mary Poppendieck",
-    "number": "39-23-6423122"
-  }
-]
-
 // Info api
 app.get(`${BASE_URL}/info`, (request, response) => {
   bodyString =
@@ -53,20 +35,16 @@ app.get(`${BASE_URL}/info`, (request, response) => {
 
 // List all persons
 app.get(`${BASE_URL}`, (request, response) => {
-  response.json(persons)
+  Person.find({}).then(persons => {
+    response.json(persons)
+  })
 })
 
 // Query person by id
 app.get(`${BASE_URL}/:id`, (request, response) => {
-  const personId = Number(request.params.id)
-
-  foundPerson = persons.find(p => p.id === personId)
-
-  if (foundPerson) {
-    response.json(foundPerson)
-  } else {
-    response.status(404).end()
-  }
+  Person.findById(request.params.id).then(person => {
+    response.json(person)
+  })
 })
 
 // Delete person by id
@@ -77,10 +55,6 @@ app.delete(`${BASE_URL}/:id`, (request, response) => {
 
   response.status(204).end()
 })
-
-const generateId = () => {
-  return Math.floor(Math.random() * 100)
-}
 
 // Add new person
 app.post(`${BASE_URL}`, (request, response) => {
@@ -103,23 +77,21 @@ app.post(`${BASE_URL}`, (request, response) => {
       })
   }
 
-  if (persons.findIndex(p => p.name === newPerson.name) !== -1) {
-    return response
-      .status(400)
-      .json({
-        error: 'name must be unique'
-      })
-  }
+// TODO: Ensuring no duplicate names are added to the db
+//  if (persons.findIndex(p => p.name === newPerson.name) !== -1) {
+//    return response
+//      .status(400)
+//      .json({
+//        error: 'name must be unique'
+//      })
+//  }
 
-  let newPersonId = -1
-  do {
-    newPersonId = generateId()
-  } while (persons.findIndex(p => p.id == newPersonId) !== -1)
-
-  newPerson.id = newPersonId
-  persons = persons.concat(newPerson)
-
-  response.json(newPerson)
+  const person = new Person({
+    number: newPerson.number,
+    name: newPerson.name
+  }) 
+  person.save()
+  .then(savedPerson => response.json(savedPerson))
 })
 
 const PORT = process.env.PORT || 3001
