@@ -8,7 +8,7 @@ GET http://localhost:3001/api/persons/info
 
 ###
 # Person by id
-GET http://localhost:3001/api/persons/1
+GET http://localhost:3001/api/persons/61a20b54b81aae8e7750ea77
 
 ###
 # Delete person by id
@@ -22,4 +22,14 @@ content-type: application/json
 {
     "name": "Matti Luukkainen",
     "number": "98-31-232021"
+}
+
+###
+# Update person
+PUT http://localhost:3001/api/persons/61a227ecaa19637ad27aa83f
+content-type: application/json
+
+{
+    "name": "AG",
+    "number": "22-11-333444"
 }
