@@ -126,7 +126,7 @@ app.post(`${BASE_URL}`, (request, response) => {
   response.json(newPerson)
 })
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Express server running on port ${PORT}`)
 })
