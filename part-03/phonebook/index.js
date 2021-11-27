@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const morgan = require('morgan')
 const app = express()
+app.use(express.static('build'))
 app.use(cors())
 app.use(express.json())
 
@@ -39,11 +40,6 @@ let persons = [
     "number": "39-23-6423122"
   }
 ]
-
-// Root api
-app.get('/', (request, response) => {
-  response.send('<h2>Welcome to Persons api</h2>')
-})
 
 // Info api
 app.get(`${BASE_URL}/info`, (request, response) => {
