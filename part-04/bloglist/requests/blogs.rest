@@ -1,0 +1,15 @@
+# GET ALL Request
+GET http://localhost:3001/api/blogs
+
+###
+
+# Create new entry
+POST http://localhost:3001/api/blogs
+content-type: application/json
+
+{
+    "title": "Hello world!",
+    "author": "AG",
+    "likes": 10,
+    "url": "http//guptaanmol184.com"
+}
