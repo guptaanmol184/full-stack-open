@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint .",
     "dev": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --verbose"
   },
   "keywords": [],
   "author": "Anmol Gupta",
@@ -14,6 +14,7 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "jest": "^27.3.1",
     "mongoose": "^6.0.13"
   },
   "devDependencies": {
