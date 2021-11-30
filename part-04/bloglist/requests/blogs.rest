@@ -8,8 +8,28 @@ POST http://localhost:3001/api/blogs
 content-type: application/json
 
 {
-    "title": "Hello world!",
-    "author": "AG",
-    "likes": 10,
-    "url": "http//guptaanmol184.com"
+  "title": "Hello world!",
+  "author": "AG",
+  "likes": 10,
+  "url": "http//guptaanmol184.com"
+}
+
+###
+# Blog by id
+GET http://localhost:3001/api/blogs/61a2566723f9c8306bac7816
+
+###
+# Delete Blog by id
+DELETE http://localhost:3001/api/blogs/61a2566723f9c8306bac7816
+
+###
+# Update blog by id
+PUT http://localhost:3001/api/blogs/61a2566c23f9c8306bac7819
+content-type: application/json
+
+{
+  "title": "Hello world!",
+  "author": "AG",
+  "likes": 2,
+  "url": "http//guptaanmol184.com"
 }
