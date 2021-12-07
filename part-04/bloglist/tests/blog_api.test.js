@@ -1,29 +1,65 @@
 const mongoose = require('mongoose')
 const supertest = require('supertest')
 const helper = require('./test_helper')
+const bcrypt = require('bcrypt')
 const app = require('../app')
 const api = supertest(app)
 
-const TIMEOUT = 5000
+const TIMEOUT = 10000
 const BLOGS_ENDPOINT = '/api/blogs'
 
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 describe('when there is initially some blogs saved', () => {
 
+  let token
+  let userId
+
   beforeEach(async () => {
+    // Setup new user for blog
+    await User.deleteMany({});
+
+    const testUsername = 'testuser'
+    const testPassword = '123abc!'
+    const passwordHash = await bcrypt.hash(testPassword, 10);
+    const user = new User({
+      name: "Test User",
+      username: testUsername,
+      passwordHash: passwordHash
+    });
+
+    userSaveResult = await user.save();
+    userId = userSaveResult._id.toString();
+
+    // Add blogs
     await Blog.deleteMany({})
-    console.log('cleared blogs')
+    //console.log('cleared blogs')
 
     for (let blog of helper.initialBlogs) {
-      let blogObject = new Blog(blog)
-      await blogObject.save()
 
-      console.log('saved a blog')
+      blog.user = userSaveResult._id
+      let blogObject = new Blog(blog)
+      blogSaveResult = await blogObject.save()
+
+      user.blogs = user.blogs.concat(blogSaveResult._id)
+      await user.save()
+
+      //console.log('saved a blog')
     }
 
-    console.log('done adding blogs')
-  })
+    //console.log('done adding blogs')
+
+
+    // login user
+    loginResult = await api
+      .post('/api/login')
+      .send({
+        username: testUsername,
+        password: testPassword
+      })
+    token = loginResult.body.token
+  }, TIMEOUT)
 
   test('blogs are returned as json', async () => {
     await api
@@ -56,7 +92,11 @@ describe('when there is initially some blogs saved', () => {
         .expect(200)
         .expect('Content-Type', /application\/json/)
 
-      expect(resultBlog.body).toEqual(blogToView)
+      expect(resultBlog.body.title).toEqual(blogToView.title)
+      expect(resultBlog.body.author).toEqual(blogToView.author)
+      expect(resultBlog.body.url).toEqual(blogToView.url)
+      expect(resultBlog.body.likes).toEqual(blogToView.likes)
+      expect(resultBlog.body.user).toEqual(userId)
     })
 
     test('fails with statuscode 404 if note does not exist', async () => {
@@ -84,6 +124,21 @@ describe('when there is initially some blogs saved', () => {
       expect(blog.id).toBeDefined()
     }, TIMEOUT)
 
+    test('addition of a new blog fails with 401 Unauthorized if token is not provided', async () => {
+      const newBlog = {
+        title: 'Test blog',
+        author: 'Test author',
+        url: 'https://test.blog.html',
+        likes: 10
+      }
+
+      const result =
+        await api
+          .post(BLOGS_ENDPOINT)
+          .send(newBlog)
+          .expect(401)
+    })
+
     test('a valid blog object is added on post request', async () => {
       const newBlog = {
         title: 'Test blog',
@@ -92,17 +147,19 @@ describe('when there is initially some blogs saved', () => {
         likes: 10
       }
 
-      const reesponse =
+      const result =
         await api
           .post(BLOGS_ENDPOINT)
           .send(newBlog)
-
+          .set('Authorization', `bearer ${token}`)
+          .expect(201)
 
       // verify that response for new blog
-      expect(reesponse.body.title).toBe(newBlog.title)
-      expect(reesponse.body.author).toBe(newBlog.author)
-      expect(reesponse.body.url).toBe(newBlog.url)
-      expect(reesponse.body.likes).toBe(newBlog.likes)
+      expect(result.body.title).toBe(newBlog.title)
+      expect(result.body.author).toBe(newBlog.author)
+      expect(result.body.url).toBe(newBlog.url)
+      expect(result.body.likes).toBe(newBlog.likes)
+      expect(result.body.user).toBe(userId)
 
       // check that new blog is added to database
       const response = await api.get(BLOGS_ENDPOINT)
@@ -120,6 +177,8 @@ describe('when there is initially some blogs saved', () => {
         await api
           .post(BLOGS_ENDPOINT)
           .send(newBlog)
+          .set('Authorization', `bearer ${token}`)
+          .expect(201)
 
       expect(response.body.likes).toBe(0)
     }, TIMEOUT)
@@ -133,6 +192,7 @@ describe('when there is initially some blogs saved', () => {
       await api
         .post(BLOGS_ENDPOINT)
         .send(newBlog)
+        .set('Authorization', `bearer ${token}`)
         .expect(400)
 
       const blogsAtEnd = await helper.blogsInDb()
@@ -148,6 +208,7 @@ describe('when there is initially some blogs saved', () => {
       await api
         .post(BLOGS_ENDPOINT)
         .send(newBlog)
+        .set('Authorization', `bearer ${token}`)
         .expect(400)
 
       const blogsAtEnd = await helper.blogsInDb()
@@ -156,12 +217,22 @@ describe('when there is initially some blogs saved', () => {
   })
 
   describe('deletion of a blog', () => {
+    test('deletion of a blog fails with status 401 if token is not provided', async () => {
+      const blogsAtStart = await helper.blogsInDb()
+      const blogToDelete = blogsAtStart[0]
+
+      await api
+        .delete(`${BLOGS_ENDPOINT}/${blogToDelete.id}`)
+        .expect(401)
+    })
+
     test('succeeds with status code 204 if id is valid', async () => {
       const blogsAtStart = await helper.blogsInDb()
       const blogToDelete = blogsAtStart[0]
 
       await api
         .delete(`${BLOGS_ENDPOINT}/${blogToDelete.id}`)
+        .set('Authorization', `bearer ${token}`)
         .expect(204)
 
       const blogsAtEnd = await helper.blogsInDb()

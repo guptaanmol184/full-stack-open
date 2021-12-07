@@ -1,0 +1,14 @@
+# GET ALL Request
+GET http://localhost:3001/api/users
+
+###
+
+# Create new entry
+POST http://localhost:3001/api/users
+content-type: application/json
+
+{
+  "name": "Anmol Gupta 2",
+  "username": "anmolgupta2",
+  "password": "anmolgupta2"
+}
