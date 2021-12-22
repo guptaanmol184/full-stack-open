@@ -1,4 +1,6 @@
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
+
 const Blog = (
   {
     blog,
@@ -22,9 +24,7 @@ const Blog = (
   }
 
   const handleDeleteButtonClicked = () => {
-
     const confirmation = window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)
-
     if (confirmation) {
       handleDeleteBlog(blog.id)
     }
@@ -41,7 +41,6 @@ const Blog = (
     )
   }
 
-
   return (
     < div style={blogStyle}>
       <p>Title: {blog.title} <button onClick={toggleIsExpanded}>{isExpanded ? 'hide' : 'view'}</button> </p>
@@ -50,6 +49,12 @@ const Blog = (
       }
     </div >
   )
+}
+
+Blog.propTypes = {
+  blog: PropTypes.object.isRequired,
+  handleUpdateBlogLikeCount: PropTypes.func.isRequired,
+  handleDeleteBlog: PropTypes.func.isRequired
 }
 
 export default Blog

@@ -1,4 +1,6 @@
 import Blog from './Blog'
+import PropTypes, { object } from 'prop-types'
+import React from 'react'
 
 const UserBlogs =
   (
@@ -8,7 +10,6 @@ const UserBlogs =
       handleDeleteBlog
     }
   ) => {
-
     return (
       userBlogList.length === 0
         ? <p>You have not added any blogs.</p>
@@ -22,5 +23,11 @@ const UserBlogs =
           )
     )
   }
+
+UserBlogs.propTypes = {
+  userBlogList: PropTypes.arrayOf(object).isRequired,
+  handleUpdateBlogLikeCount: PropTypes.func.isRequired,
+  handleDeleteBlog: PropTypes.func.isRequired
+}
 
 export default UserBlogs

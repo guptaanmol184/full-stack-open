@@ -24,7 +24,7 @@ const App = () => {
     setNotification({ message, type })
     setTimeout(() => {
       setNotification({ message: null, type: null })
-    }, 3000);
+    }, 3000)
   }
 
   // Set's all blogs from backend
@@ -86,7 +86,8 @@ const App = () => {
             : blog
         )
       setBlogs(newBlogList)
-    } catch {
+    } catch (exception) {
+      console.log('updating blog like count failed', exception)
       sendNotification('Error occured while liking blog', 'error')
     }
   }
@@ -97,13 +98,14 @@ const App = () => {
       await blogService.deleteBlog(blogId)
       const newBlogList = blogs.filter(blog => blog.id !== blogId)
       setBlogs(newBlogList)
-    } catch {
+    } catch (exception) {
+      console.log('deleting blog failed', exception)
       sendNotification('Error occured while deleting blog', 'error')
     }
   }
 
   // Handles logging out the user
-  const handleLogout = (e) => {
+  const handleLogout = () => {
     window.localStorage.removeItem('loggedInUser')
     setUser(null)
   }
@@ -142,7 +144,7 @@ const App = () => {
       <h1 className='heading'>Blogs</h1>
       <Notification notification={notification} />
       {
-        user == null
+        user === null
           ? loginPage()
           : userBlogPage()
       }
