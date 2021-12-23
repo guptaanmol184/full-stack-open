@@ -7,6 +7,7 @@ const Blog = (
     handleUpdateBlogLikeCount,
     handleDeleteBlog
   }) => {
+
   const [isExpanded, setIsExpanded] = useState(false)
 
   const blogStyle = {
