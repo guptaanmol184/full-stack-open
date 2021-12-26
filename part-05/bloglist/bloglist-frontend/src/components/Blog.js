@@ -43,7 +43,7 @@ const Blog = (
   }
 
   return (
-    < div style={blogStyle}>
+    < div style={blogStyle} className="blog">
       <p>Title: {blog.title} <button onClick={toggleIsExpanded}>{isExpanded ? 'hide' : 'view'}</button> </p>
       {
         isExpanded && blogBody()
